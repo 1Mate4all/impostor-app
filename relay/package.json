@@ -1,0 +1,16 @@
+{
+  "name": "impostor-relay",
+  "version": "1.0.0",
+  "description": "Nostr relay for Impostor game",
+  "main": "relay.js",
+  "scripts": {
+    "start": "node relay.js",
+    "dev": "node relay.js"
+  },
+  "dependencies": {
+    "ws": "^8.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
