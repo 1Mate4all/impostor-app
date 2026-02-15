@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { decodeNpub } from '@/lib/nostr'
+
+const DEFAULT_RELAYS = [
+  'wss://relay.damus.io',
+  'wss://nos.lol',
+  'wss://relay.nostr.band',
+]
 
 export async function GET(
   request: Request,
@@ -12,20 +18,10 @@ export async function GET(
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
     }
 
-    const usuario = await prisma.usuario.findUnique({
-      where: { npub },
-      include: {
-        estadisticas: true,
-        posts: {
-          orderBy: { createdAt: 'desc' },
-          take: 20
-        }
-      }
-    })
-
-    if (!usuario) {
+    const publicKey = decodeNpub(npub)
+    if (!publicKey) {
       return NextResponse.json({ 
-        username: 'Usuario',
+        username: null,
         npub: npub,
         stats: {
           partidasJugadas: 0,
@@ -33,24 +29,47 @@ export async function GET(
           partidasPerdidas: 0,
           vecesImpostor: 0,
           vecesCiudadano: 0,
-        },
-        posts: []
+        }
       })
     }
 
-    const stats = usuario.estadisticas
+    const { SimplePool } = await import('nostr-tools')
+    const pool = new SimplePool()
+
+    const profileEvents = await pool.querySync(DEFAULT_RELAYS, {
+      kinds: [0],
+      authors: [publicKey],
+      limit: 1
+    })
+
+    setTimeout(() => {
+      try { pool.close(DEFAULT_RELAYS) } catch (e) {}
+    }, 3000)
+
+    let username = null
+    let profile = null
+
+    if (profileEvents.length > 0) {
+      try {
+        profile = JSON.parse(profileEvents[0].content)
+        username = profile.name || profile.display_name
+      } catch (e) {
+        console.error('Error parsing profile:', e)
+      }
+    }
 
     return NextResponse.json({
-      username: usuario.username,
-      npub: usuario.npub,
+      username: username || `user_${npub.slice(0, 8)}`,
+      npub: npub,
+      publicKey,
+      profile,
       stats: {
-        partidasJugadas: stats?.partidasJugadas || 0,
-        partidasGanadas: stats?.partidasGanadas || 0,
-        partidasPerdidas: stats?.partidasPerdidas || 0,
-        vecesImpostor: stats?.vecesImpostor || 0,
-        vecesCiudadano: stats?.vecesCiudadano || 0,
-      },
-      posts: usuario.posts
+        partidasJugadas: 0,
+        partidasGanadas: 0,
+        partidasPerdidas: 0,
+        vecesImpostor: 0,
+        vecesCiudadano: 0,
+      }
     })
   } catch (error) {
     console.error('Error fetching profile:', error)

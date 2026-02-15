@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 8080;
+const HOST = process.env.HOST || '0.0.0.0';
 const EVENTS_FILE = path.join(__dirname, 'relay-events.json');
 let wss;
 
@@ -60,8 +61,8 @@ process.on('SIGINT', () => {
 });
 
 try {
-  wss = new WebSocket.Server({ port: PORT });
-  console.log(`Relay Impostor iniciado en ws://localhost:${PORT}`);
+  wss = new WebSocket.Server({ host: HOST, port: parseInt(PORT) });
+  console.log(`Relay Impostor iniciado en ws://${HOST}:${PORT}`);
 } catch (e) {
   console.log('Relay: El relay ya está corriendo');
   process.exit(0);

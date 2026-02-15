@@ -11,8 +11,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "env": {
-    "DATABASE_URL": "file:./dev.db"
-  }
+  ]
 }

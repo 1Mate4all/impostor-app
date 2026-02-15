@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { decodeNpub } from '@/lib/nostr'
+
+const DEFAULT_RELAYS = [
+  'wss://relay.damus.io',
+  'wss://nos.lol',
+  'wss://relay.nostr.band',
+]
 
 export async function POST(request: Request) {
   try {
@@ -12,39 +18,14 @@ export async function POST(request: Request) {
       )
     }
 
-    let user = await prisma.usuario.findUnique({
-      where: { npub }
-    })
-
-    if (!user) {
-      user = await prisma.usuario.create({
-        data: {
-          npub,
-          privateKeyEncrypted: privateKey,
-          username: `user_${npub.slice(0, 8)}`
-        }
-      })
-
-      await prisma.estadistica.create({
-        data: {
-          usuarioId: user.id
-        }
-      })
-    }
-
-    if (user.privateKeyEncrypted !== privateKey) {
-      await prisma.usuario.update({
-        where: { id: user.id },
-        data: { privateKeyEncrypted: privateKey }
-      })
-    }
+    const username = `user_${npub.slice(0, 8)}`
 
     return NextResponse.json({
       success: true,
       user: {
-        id: user.id,
-        npub: user.npub,
-        username: user.username
+        npub,
+        publicKey,
+        username
       }
     })
   } catch (error) {
@@ -53,5 +34,54 @@ export async function POST(request: Request) {
       { error: 'Error al iniciar sesión' },
       { status: 500 }
     )
+  }
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const npub = searchParams.get('npub')
+
+  if (!npub) {
+    return NextResponse.json({ error: 'Falta npub' }, { status: 400 })
+  }
+
+  try {
+    const publicKey = decodeNpub(npub)
+    if (!publicKey) {
+      return NextResponse.json({ error: 'Invalid npub' }, { status: 400 })
+    }
+
+    const { SimplePool } = await import('nostr-tools')
+    const pool = new SimplePool()
+
+    const profileEvents = await pool.querySync(DEFAULT_RELAYS, {
+      kinds: [0],
+      authors: [publicKey],
+      limit: 1
+    })
+
+    setTimeout(() => {
+      try { pool.close(DEFAULT_RELAYS) } catch (e) {}
+    }, 3000)
+
+    if (profileEvents.length === 0) {
+      return NextResponse.json({
+        username: null,
+        npub,
+        publicKey
+      })
+    }
+
+    const profile = JSON.parse(profileEvents[0].content)
+
+    return NextResponse.json({
+      username: profile.name || profile.display_name || null,
+      npub,
+      publicKey,
+      profile: profile
+    })
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+    return NextResponse.json({ error: 'Error al obtener perfil' }, { status: 500 })
   }
 }

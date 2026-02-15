@@ -1,30 +1,19 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+
+const CATEGORIES = [
+  { id: 1, name: 'Frutas' },
+  { id: 2, name: 'Animales' },
+  { id: 3, name: 'Países' },
+  { id: 4, name: 'Colores' },
+  { id: 5, name: 'Profesiones' },
+  { id: 6, name: 'Comida' },
+  { id: 7, name: 'Deportes' },
+  { id: 8, name: 'Objetos' },
+]
 
 export async function GET() {
   try {
-    let categorias = await prisma.categoria.findMany()
-    
-    if (categorias.length === 0) {
-      const defaultCategorias = [
-        { nombre: 'Frutas' },
-        { nombre: 'Animales' },
-        { nombre: 'Países' },
-        { nombre: 'Colores' },
-        { nombre: 'Profesiones' },
-        { nombre: 'Comida' },
-        { nombre: 'Deportes' },
-        { nombre: 'Objetos' },
-      ]
-      
-      for (const cat of defaultCategorias) {
-        await prisma.categoria.create({ data: cat })
-      }
-      
-      categorias = await prisma.categoria.findMany()
-    }
-    
-    return NextResponse.json(categorias)
+    return NextResponse.json(CATEGORIES)
   } catch (error) {
     console.error('Error fetching categories:', error)
     return NextResponse.json({ error: 'Error al obtener categorías' }, { status: 500 })

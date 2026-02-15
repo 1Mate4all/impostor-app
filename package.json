@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "relay": "node relay.js"
+    "relay": "node relay/relay.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -22,7 +22,6 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@prisma/client": "^6.19.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -30,7 +29,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "prisma": "^6.19.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

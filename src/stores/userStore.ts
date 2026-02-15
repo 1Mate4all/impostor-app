@@ -60,6 +60,7 @@ export const useUserStore = create<UserStore>()(
         { url: 'wss://nos.lol', active: true },
         { url: 'wss://relay.nostr.band', active: true },
         { url: 'wss://relay.snort.social', active: false },
+        { url: 'wss://impostor-relay.up.railway.app', active: true },
         { url: 'ws://localhost:8080', active: false },
       ],
       isAuthenticated: false,
@@ -100,6 +101,7 @@ export const useUserStore = create<UserStore>()(
           { url: 'wss://nos.lol', active: true },
           { url: 'wss://relay.nostr.band', active: true },
           { url: 'wss://relay.snort.social', active: false },
+          { url: 'wss://impostor-relay.up.railway.app', active: true },
           { url: 'ws://localhost:8080', active: false },
         ]
       }),

@@ -1,72 +1,73 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+
+const WORDS = {
+  1: [
+    'MANZANA', 'PLÁTANO', 'UVA', 'NARANJA', 'FRESA', 'PERA', 'SANDÍA', 'MANGO',
+    'CEREZA', 'MELÓN', 'KIWI', 'PAPAYA', 'MARACUYÁ', 'LIMÓN', 'COCO', 'HIGO'
+  ],
+  2: [
+    'PERRO', 'GATO', 'LEÓN', 'TIGRE', 'ELEFANTE', 'JIRAFA', 'MONO', 'CABALLO',
+    'VACA', 'OVEJA', 'CERDO', 'POLLO', 'ÁGUILA', 'LOBO', 'ZORRO', 'OSO'
+  ],
+  3: [
+    'ESPAÑA', 'ARGENTINA', 'BRASIL', 'MÉXICO', 'CHILE', 'COLOMBIA', 'PERÚ',
+    'URUGUAY', 'ECUADOR', 'VENEZUELA', 'PARAGUAY', 'BOLIVIA', 'PANAMÁ', 'CUBA'
+  ],
+  4: [
+    'ROJO', 'AZUL', 'VERDE', 'AMARILLO', 'NARANJA', 'MORADO', 'ROSADO', 'NEGRO',
+    'BLANCO', 'GRIS', 'MARRÓN', 'CELESTE', 'DORADO', 'PLATEADO'
+  ],
+  5: [
+    'MÉDICO', 'ABOGADO', 'MAESTRO', 'INGENIERO', 'CHEF', 'POLICÍA', 'BOMBERO',
+    'PILOTO', 'ACTOR', 'MÚSICO', 'ARTISTA', 'DEPORTISTA', 'CIENTÍFICO', 'COCINERO'
+  ],
+  6: [
+    'ARROZ', 'PASTA', 'PAN', 'CARNE', 'PESCADO', 'HAMBURGUESA', 'PIZZA', 'TACO',
+    'SOPA', 'ENSALADA', 'HUEVO', 'LECHE', 'QUESO', 'MANTEQUILLA', 'DULCE'
+  ],
+  7: [
+    'FÚTBOL', 'BASKETBALL', 'TENIS', 'GOLF', 'NATACIÓN', 'ATLETISMO', 'BÉISBOL',
+    'VOLEIBOL', 'BOXEO', 'LUCHA', 'CICLISMO', 'ESQUÍ', 'SURF', 'RUGBY'
+  ],
+  8: [
+    'CASA', 'COCHE', 'TELÉFONO', 'COMPUTADORA', 'LIBRO', 'MESA', 'SILLA', 'CAMA',
+    'LÁMPARA', 'RELOJ', 'CÁMARA', 'TELEVISOR', 'RADIO', 'CUCHILLO', 'TENEDOR'
+  ]
+}
+
+const CATEGORIES = [
+  { id: 1, name: 'Frutas' },
+  { id: 2, name: 'Animales' },
+  { id: 3, name: 'Países' },
+  { id: 4, name: 'Colores' },
+  { id: 5, name: 'Profesiones' },
+  { id: 6, name: 'Comida' },
+  { id: 7, name: 'Deportes' },
+  { id: 8, name: 'Objetos' },
+]
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const categoryIds = searchParams.get('categories')
 
-    let where = {}
+    let availableCategories = CATEGORIES
     
     if (categoryIds) {
-      const ids = categoryIds.split(',').map(Number).filter(n => !isNaN(n))
+      const ids = categoryIds.split(',').map(Number).filter(n => !isNaN(n) && n > 0 && n <= 8)
       if (ids.length > 0) {
-        where = { categoriaId: { in: ids } }
+        availableCategories = CATEGORIES.filter(c => ids.includes(c.id))
       }
     }
 
-    let palabras = await prisma.palabra.findMany({ where })
-
-    if (palabras.length === 0) {
-      const defaultPalabras = [
-        { palabra: 'MANZANA', categoriaId: 1 },
-        { palabra: 'PLÁTANO', categoriaId: 1 },
-        { palabra: 'UVA', categoriaId: 1 },
-        { palabra: 'NARANJA', categoriaId: 1 },
-        { palabra: 'FRESA', categoriaId: 1 },
-        { palabra: 'PERA', categoriaId: 1 },
-        { palabra: 'SANDÍA', categoriaId: 1 },
-        { palabra: 'MANGO', categoriaId: 1 },
-        { palabra: 'PERRO', categoriaId: 2 },
-        { palabra: 'GATO', categoriaId: 2 },
-        { palabra: 'LEÓN', categoriaId: 2 },
-        { palabra: 'TIGRE', categoriaId: 2 },
-        { palabra: 'ELEFANTE', categoriaId: 2 },
-        { palabra: 'JIRAFA', categoriaId: 2 },
-        { palabra: 'MONO', categoriaId: 2 },
-        { palabra: 'ESPAÑA', categoriaId: 3 },
-        { palabra: 'ARGENTINA', categoriaId: 3 },
-        { palabra: 'BRASIL', categoriaId: 3 },
-        { palabra: 'MÉXICO', categoriaId: 3 },
-        { palabra: 'CHILE', categoriaId: 3 },
-        { palabra: 'COLOMBIA', categoriaId: 3 },
-        { palabra: 'PERÚ', categoriaId: 3 },
-        { palabra: 'ROJO', categoriaId: 4 },
-        { palabra: 'AZUL', categoriaId: 4 },
-        { palabra: 'VERDE', categoriaId: 4 },
-        { palabra: 'AMARILLO', categoriaId: 4 },
-        { palabra: 'MÉDICO', categoriaId: 5 },
-        { palabra: 'ABOGADO', categoriaId: 5 },
-        { palabra: 'MAESTRO', categoriaId: 5 },
-        { palabra: 'INGENIERO', categoriaId: 5 },
-        { palabra: 'CHEF', categoriaId: 5 },
-        { palabra: 'POLICÍA', categoriaId: 5 },
-      ]
-
-      for (const p of defaultPalabras) {
-        await prisma.palabra.create({ data: p })
-      }
-
-      palabras = await prisma.palabra.findMany({ where })
-    }
-
-    if (palabras.length === 0) {
-      return NextResponse.json({ word: 'CASA' })
-    }
-
-    const randomWord = palabras[Math.floor(Math.random() * palabras.length)]
+    const randomCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)]
+    const words = WORDS[randomCategory.id as keyof typeof WORDS] || []
+    const randomWord = words[Math.floor(Math.random() * words.length)]
     
-    return NextResponse.json({ word: randomWord.palabra })
+    return NextResponse.json({ 
+      word: randomWord || 'CASA',
+      categoria: randomCategory.name
+    })
   } catch (error) {
     console.error('Error fetching word:', error)
     return NextResponse.json({ word: 'CASA' })
