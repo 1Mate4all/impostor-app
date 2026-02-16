@@ -47,23 +47,23 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <ThemeSelector />
             
             <Link
               href="/game"
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs sm:text-sm font-medium"
             >
-              <Plus size={18} />
-              Nueva Partida
+              <Plus className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px]" />
+              <span className="hidden sm:inline">Nueva Partida</span>
             </Link>
 
             <button
               onClick={handleLogout}
-              className="p-2 text-gray-400 hover:text-red-400"
+              className="p-1.5 sm:p-2 text-gray-400 hover:text-red-400"
               title="Cerrar sesión"
             >
-              <LogOut size={20} />
+              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>

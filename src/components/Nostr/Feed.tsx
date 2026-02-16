@@ -480,11 +480,21 @@ export default function Feed() {
   const handleLike = async (eventId: string, pubkey: string) => {
     if (!privateKey || !user) return
     
-    if (likedPosts.has(eventId)) {
-      return
-    }
+    const note = notes.find(n => n.id === eventId)
+    const isCurrentlyLiked = likedPosts.has(eventId) || note?.likedByCurrentUser || false
     
     toggleLike(eventId)
+    
+    setNotes(prev => prev.map(n => {
+      if (n.id === eventId) {
+        return {
+          ...n,
+          likedByCurrentUser: !isCurrentlyLiked,
+          likeCount: isCurrentlyLiked ? n.likeCount - 1 : n.likeCount + 1
+        }
+      }
+      return n
+    }))
     
     try {
       const { SimplePool, finalizeEvent } = await import('nostr-tools')
@@ -493,7 +503,7 @@ export default function Feed() {
         kind: 7,
         created_at: Math.floor(Date.now() / 1000),
         tags: [['e', eventId], ['p', pubkey]],
-        content: '+'
+        content: isCurrentlyLiked ? '-' : '+'
       }
 
       const signed = finalizeEvent(event, Buffer.from(privateKey, 'hex'))
@@ -512,6 +522,16 @@ export default function Feed() {
       }
     } catch (error) {
       console.error('Error liking:', error)
+      setNotes(prev => prev.map(n => {
+        if (n.id === eventId) {
+          return {
+            ...n,
+            likedByCurrentUser: isCurrentlyLiked,
+            likeCount: isCurrentlyLiked ? n.likeCount + 1 : n.likeCount - 1
+          }
+        }
+        return n
+      }))
     }
   }
 
@@ -679,9 +699,9 @@ export default function Feed() {
             <div className="flex gap-6 pt-3 border-t border-gray-700/50">
               <button 
                 onClick={() => handleLike(note.id, note.pubkey)}
-                className={`flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
+                className={`flex items-center gap-2 transition-all duration-200 hover:scale-110 ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
               >
-                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'animate-pulse' : ''} />
                 {note.likeCount > 0 && <span className="text-sm">{note.likeCount}</span>}
               </button>
               <button 
