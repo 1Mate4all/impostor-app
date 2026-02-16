@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useThemeStore, THEMES, ThemeName } from '@/stores/themeStore'
 import { Palette, ChevronDown } from 'lucide-react'
 
@@ -14,17 +14,28 @@ const THEME_LABELS: Record<ThemeName, string> = {
 
 export default function ThemeSelector() {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useThemeStore()
 
-  const handleThemeSelect = (newTheme: ThemeName) => {
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const applyTheme = (newTheme: ThemeName) => {
+    const colors = THEMES[newTheme]
+    
+    document.documentElement.setAttribute('data-theme', newTheme)
+    document.documentElement.style.setProperty('--primary', colors.primary)
+    document.documentElement.style.setProperty('--secondary', colors.secondary)
+    document.documentElement.style.setProperty('--accent', colors.text)
+    document.documentElement.style.setProperty('--bg-theme', colors.background)
+    
     setTheme(newTheme)
     setIsOpen(false)
-    
-    const colors = THEMES[newTheme]
-    document.documentElement.style.setProperty('--theme-primary', colors.primary)
-    document.documentElement.style.setProperty('--theme-secondary', colors.secondary)
-    document.documentElement.style.setProperty('--theme-text', colors.text)
-    document.documentElement.style.setProperty('--theme-bg', colors.background)
+  }
+
+  if (!mounted) {
+    return null
   }
 
   return (
@@ -48,7 +59,7 @@ export default function ThemeSelector() {
             {Object.entries(THEMES).map(([name, colors]) => (
               <button
                 key={name}
-                onClick={() => handleThemeSelect(name as ThemeName)}
+                onClick={() => applyTheme(name as ThemeName)}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-700 transition-colors ${
                   theme === name ? 'bg-gray-700/50' : ''
                 }`}
