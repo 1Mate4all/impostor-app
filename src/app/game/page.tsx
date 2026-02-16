@@ -188,10 +188,13 @@ export default function Game() {
   const [currentVoterIndex, setCurrentVoterIndex] = useState(0)
 
   const handleVote = (targetPlayerId: number) => {
-    // Obtener el jugador que está votando actualmente
-    const voter = players[currentVoterIndex]
+    // Obtener lista de jugadores activos
+    const activePlayers = players.filter(p => !p.eliminated)
     
-    if (!voter || voter.eliminated) {
+    // Obtener el jugador que está votando actualmente
+    const voter = activePlayers[currentVoterIndex]
+    
+    if (!voter) {
       alert('Error: No se encontró el votante')
       return
     }
@@ -219,32 +222,35 @@ export default function Game() {
       return p
     }))
     
-    // Buscar el siguiente jugador que no haya votado
-    let nextIndex = (currentVoterIndex + 1) % players.length
+    // Buscar el siguiente jugador activo que no haya votado
+    // Trabajamos con índices de activePlayers
+    let nextActiveIndex = (currentVoterIndex + 1) % activePlayers.length
     let checkedCount = 0
     
-    while (checkedCount < players.length) {
-      const nextPlayer = players[nextIndex]
-      if (!nextPlayer.eliminated && nextPlayer.votedFor === null) {
+    while (checkedCount < activePlayers.length) {
+      const nextPlayer = activePlayers[nextActiveIndex]
+      // Recargar players desde el estado actual para verificar votedFor actualizado
+      const nextPlayerUpdated = players.find(p => p.id === nextPlayer.id)
+      if (nextPlayerUpdated && nextPlayerUpdated.votedFor === null) {
         break
       }
-      nextIndex = (nextIndex + 1) % players.length
+      nextActiveIndex = (nextActiveIndex + 1) % activePlayers.length
       checkedCount++
     }
     
-    setCurrentVoterIndex(nextIndex)
+    setCurrentVoterIndex(nextActiveIndex)
     
     // Verificar si todos los jugadores activos ya votaron
-    const activePlayers = players.filter(p => !p.eliminated)
-    const allVoted = activePlayers.every(p => p.votedFor !== null)
+    const updatedActivePlayers = players.filter(p => !p.eliminated)
+    const allVoted = updatedActivePlayers.every(p => p.votedFor !== null)
     
     if (allVoted) {
       setTimeout(() => {
         alert('Todos han votado. Haz clic en "Eliminar sospechoso" para continuar.')
       }, 100)
     } else {
-      const nextVoter = players[nextIndex]
-      if (nextVoter && !nextVoter.eliminated) {
+      const nextVoter = activePlayers[nextActiveIndex]
+      if (nextVoter) {
         setTimeout(() => {
           alert(`${nextVoter.name}, es tu turno de votar`)
         }, 100)
@@ -286,7 +292,7 @@ export default function Game() {
       return
     }
 
-    if (citizensRemaining === 0 || impostorsRemaining >= citizensRemaining) {
+    if (citizensRemaining === 0) {
       setPlayers(prev => prev.map(p => 
         p.id === eliminated.id ? { ...p, eliminated: true } : p
       ))
@@ -448,42 +454,45 @@ export default function Game() {
             <div>
               <label className="flex items-center gap-2 mb-3 text-lg font-semibold">
                 <UsersIcon size={20} />
-                Jugadores: {playerCount}
+                Jugadores
               </label>
               <input
-                type="range"
+                type="number"
                 min={3}
                 max={20}
                 value={playerCount}
                 onChange={(e) => {
-                  setPlayerCount(Number(e.target.value))
-                  if (impostorCount >= Number(e.target.value)) {
-                    setImpostorCount(Number(e.target.value) - 1)
+                  const value = Math.max(3, Math.min(20, Number(e.target.value) || 3))
+                  setPlayerCount(value)
+                  if (impostorCount >= value) {
+                    setImpostorCount(value - 1)
                   }
                 }}
-                className="w-full"
+                className="w-full px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
               />
-              <div className="flex justify-between text-sm text-gray-400 mt-1">
-                <span>3</span>
-                <span>Sin límite</span>
-              </div>
+              <p className="text-sm text-gray-400 mt-1">
+                Mínimo 3, máximo 20 jugadores
+              </p>
             </div>
 
             <div>
               <label className="flex items-center gap-2 mb-3 text-lg font-semibold">
                 <UserMinus size={20} />
-                Impostores: {impostorCount}
+                Impostores
               </label>
               <input
-                type="range"
+                type="number"
                 min={1}
                 max={playerCount - 1}
                 value={impostorCount}
-                onChange={(e) => handleImpostorChange(Number(e.target.value))}
-                className="w-full"
+                onChange={(e) => {
+                  const value = Math.max(1, Math.min(playerCount - 1, Number(e.target.value) || 1))
+                  setImpostorCount(value)
+                }}
+                className="w-full px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
               />
               <p className="text-sm text-gray-400 mt-1">
-                Siempre habrá al menos 1 ciudadano
+                Mínimo 1, máximo {playerCount - 1} (siempre habrá al menos 1 ciudadano)
               </p>
             </div>
 
@@ -705,7 +714,7 @@ export default function Game() {
                     </span>
                     <button
                       onClick={() => handleVote(player.id)}
-                      disabled={isCurrentVoter || isSelf}
+                      disabled={isSelf}
                       className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded text-sm"
                     >
                       Votar

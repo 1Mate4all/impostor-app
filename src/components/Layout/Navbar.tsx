@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUserStore } from '@/stores/userStore'
+import ThemeSelector from './ThemeSelector'
 import { 
   Menu, 
   X, 
@@ -47,6 +48,8 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeSelector />
+            
             <Link
               href="/game"
               className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium"

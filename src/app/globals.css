@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  --theme-primary: #00ff00;
+  --theme-secondary: #00ffff;
+  --theme-text: #00ff00;
+  --theme-bg: #000000;
 }
 
 @theme inline {
@@ -10,6 +15,41 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+[data-theme="matrix"] {
+  --theme-primary: #00ff00;
+  --theme-secondary: #00ffff;
+  --theme-text: #00ff00;
+  --theme-bg: #000000;
+}
+
+[data-theme="amber"] {
+  --theme-primary: #ffb000;
+  --theme-secondary: #ffd700;
+  --theme-text: #ffb000;
+  --theme-bg: #000000;
+}
+
+[data-theme="cyberpunk"] {
+  --theme-primary: #ff00ff;
+  --theme-secondary: #00ffff;
+  --theme-text: #ff00ff;
+  --theme-bg: #000000;
+}
+
+[data-theme="hacker"] {
+  --theme-primary: #00ffff;
+  --theme-secondary: #00ff00;
+  --theme-text: #00ffff;
+  --theme-bg: #000000;
+}
+
+[data-theme="ghost"] {
+  --theme-primary: #ffffff;
+  --theme-secondary: #cccccc;
+  --theme-text: #ffffff;
+  --theme-bg: #000000;
 }
 
 @media (prefers-color-scheme: dark) {

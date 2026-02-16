@@ -56,12 +56,12 @@ export const useUserStore = create<UserStore>()(
       user: null,
       privateKey: null,
       relays: [
-        { url: 'wss://relay.damus.io', active: true },
-        { url: 'wss://nos.lol', active: true },
-        { url: 'wss://relay.nostr.band', active: true },
-        { url: 'wss://relay.snort.social', active: false },
-        { url: 'wss://impostor-relay.up.railway.app', active: true },
-        { url: 'ws://localhost:8080', active: false },
+        { url: 'wss://impostor-relay-production.up.railway.app', active: true },
+        { url: 'wss://relay.damus.io', active: false },
+        { url: 'wss://relay.iris.to', active: false },
+        { url: 'wss://relay.primal.net', active: false },
+        { url: 'wss://nos.lol', active: false },
+        { url: 'wss://relay.nostr.band', active: false },
       ],
       isAuthenticated: false,
       likedPosts: new Set(),
@@ -97,12 +97,12 @@ export const useUserStore = create<UserStore>()(
 
       resetRelays: () => set({
         relays: [
-          { url: 'wss://relay.damus.io', active: true },
-          { url: 'wss://nos.lol', active: true },
-          { url: 'wss://relay.nostr.band', active: true },
-          { url: 'wss://relay.snort.social', active: false },
-          { url: 'wss://impostor-relay.up.railway.app', active: true },
-          { url: 'ws://localhost:8080', active: false },
+          { url: 'wss://impostor-relay-production.up.railway.app', active: true },
+          { url: 'wss://relay.damus.io', active: false },
+          { url: 'wss://relay.iris.to', active: false },
+          { url: 'wss://relay.primal.net', active: false },
+          { url: 'wss://nos.lol', active: false },
+          { url: 'wss://relay.nostr.band', active: false },
         ]
       }),
 
@@ -141,6 +141,10 @@ export const useUserStore = create<UserStore>()(
           state.isAuthenticated = !!state.privateKey
           state.likedPosts = new Set(state.likedPosts as unknown as string[])
           state.repostedPosts = new Set(state.repostedPosts as unknown as string[])
+          // Siempre usar solo nuestro relay, ignorar lo guardado en localStorage
+          state.relays = [
+            { url: 'wss://impostor-relay-production.up.railway.app', active: true },
+          ]
         }
       },
     }
