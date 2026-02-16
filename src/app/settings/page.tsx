@@ -84,12 +84,12 @@ export default function Settings() {
                   type="text"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-4 py-2 bg-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
                 />
                 <button
                   onClick={handleSaveUsername}
                   disabled={saving}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-theme-primary hover:opacity-80 rounded-lg flex items-center gap-2"
                 >
                   <Save size={18} />
                 </button>
@@ -97,19 +97,19 @@ export default function Settings() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2">
+              <label className="block text-sm text-theme-accent mb-2">
                 Clave pública (npub)
               </label>
               <input
                 type="text"
                 value={user?.npub || ''}
                 readOnly
-                className="w-full px-4 py-2 bg-gray-700 rounded-lg text-gray-400"
+                className="w-full px-4 py-2 bg-theme-bg rounded-lg text-theme-accent"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2">
+              <label className="block text-sm text-theme-accent mb-2">
                 Clave privada
               </label>
               <div className="flex gap-2">
@@ -117,11 +117,11 @@ export default function Settings() {
                   type={showPrivateKey ? 'text' : 'password'}
                   value={privateKey || ''}
                   readOnly
-                  className="flex-1 px-4 py-2 bg-gray-700 rounded-lg text-gray-400 font-mono"
+                  className="flex-1 px-4 py-2 bg-theme-bg rounded-lg text-theme-accent font-mono"
                 />
                 <button
                   onClick={() => setShowPrivateKey(!showPrivateKey)}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg"
+                  className="px-4 py-2 bg-theme-bg hover:opacity-80 rounded-lg"
                 >
                   {showPrivateKey ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -133,7 +133,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-gray-800 rounded-lg p-6">
+        <section className="bg-theme-bg rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Globe size={20} />
             Relays
@@ -143,7 +143,7 @@ export default function Settings() {
             {relays.map((relay) => (
               <div
                 key={relay.url}
-                className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
+                className="flex items-center justify-between p-3 bg-theme-bg rounded-lg"
               >
                 <span className="text-sm truncate flex-1">{relay.url}</span>
                 <button
@@ -151,7 +151,7 @@ export default function Settings() {
                   className={`px-3 py-1 rounded text-sm ${
                     relay.active
                       ? 'bg-green-600 text-white'
-                      : 'bg-gray-600 text-gray-300'
+                      : 'bg-theme-bg text-theme-accent'
                   }`}
                 >
                   {relay.active ? 'Activo' : 'Inactivo'}
@@ -165,11 +165,11 @@ export default function Settings() {
                 value={newRelay}
                 onChange={(e) => setNewRelay(e.target.value)}
                 placeholder="wss://tu-relay.com"
-                className="flex-1 px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                className="flex-1 px-4 py-2 bg-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
               />
               <button
                 onClick={handleAddRelay}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg"
+                className="px-4 py-2 bg-theme-primary hover:opacity-80 rounded-lg"
               >
                 Añadir
               </button>

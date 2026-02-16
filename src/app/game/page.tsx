@@ -443,14 +443,14 @@ export default function Game() {
             <h1 className="text-2xl font-bold">Nueva Partida</h1>
             <button
               onClick={() => setShowRules(true)}
-              className="flex items-center gap-2 text-purple-400 hover:text-purple-300"
+              className="flex items-center gap-2 text-theme-primary hover:opacity-80"
             >
               <HelpCircle size={20} />
               Reglas
             </button>
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-6 space-y-6">
+          <div className="bg-theme-bg rounded-lg p-6 space-y-6">
             <div>
               <label className="flex items-center gap-2 mb-3 text-lg font-semibold">
                 <UsersIcon size={20} />
@@ -468,9 +468,9 @@ export default function Game() {
                     setImpostorCount(value - 1)
                   }
                 }}
-                className="w-full px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2 bg-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
               />
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-theme-accent mt-1">
                 Mínimo 3, máximo 20 jugadores
               </p>
             </div>
@@ -489,9 +489,9 @@ export default function Game() {
                   const value = Math.max(1, Math.min(playerCount - 1, Number(e.target.value) || 1))
                   setImpostorCount(value)
                 }}
-                className="w-full px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2 bg-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
               />
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-theme-accent mt-1">
                 Mínimo 1, máximo {playerCount - 1} (siempre habrá al menos 1 ciudadano)
               </p>
             </div>
@@ -501,15 +501,15 @@ export default function Game() {
                 Modo de juego
               </label>
               <div className="flex gap-2">
-                <button className="flex-1 py-2 px-4 rounded-lg bg-purple-600">
+                <button className="flex-1 py-2 px-4 rounded-lg bg-theme-primary">
                   🎮 Local
                 </button>
-                <button className="flex-1 py-2 px-4 rounded-lg bg-gray-700 opacity-50 cursor-not-allowed flex items-center justify-center gap-2">
+                <button className="flex-1 py-2 px-4 rounded-lg bg-theme-bg opacity-50 cursor-not-allowed flex items-center justify-center gap-2">
                   <Lock size={16} />
                   Online
                 </button>
               </div>
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="text-xs text-theme-accent mt-2">
                 Próximamente: Modo Online
               </p>
             </div>
@@ -529,7 +529,7 @@ export default function Game() {
                     setLocalNames(newNames)
                   }}
                   placeholder={`Jugador ${i + 1}`}
-                  className="w-full mb-2 px-4 py-2 bg-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                  className="w-full mb-2 px-4 py-2 bg-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
                 />
               ))}
             </div>
@@ -545,8 +545,8 @@ export default function Game() {
                     onClick={() => toggleCategory(cat.id)}
                     className={`px-4 py-2 rounded-lg ${
                       selectedCategories.includes(cat.id)
-                        ? 'bg-purple-600'
-                        : 'bg-gray-700 hover:bg-gray-600'
+                        ? 'bg-theme-primary'
+                        : 'bg-theme-bg hover:opacity-80'
                     }`}
                   >
                     {cat.nombre}
@@ -555,7 +555,7 @@ export default function Game() {
               </div>
               <button
                 onClick={() => setSelectedCategories(categories.map(c => c.id))}
-                className="text-sm text-purple-400 mt-2 hover:underline"
+                className="text-sm text-theme-primary mt-2 hover:underline"
               >
                 Seleccionar todas
               </button>
@@ -572,9 +572,9 @@ export default function Game() {
 
           {showRules && (
             <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-              <div className="bg-gray-800 rounded-lg p-6 max-w-lg w-full">
+              <div className="bg-theme-bg rounded-lg p-6 max-w-lg w-full">
                 <h2 className="text-2xl font-bold mb-4">REGLAS</h2>
-                <ul className="space-y-3 text-gray-300">
+                <ul className="space-y-3 text-theme-foreground">
                   <li>1. Todos los jugadores ven una palabra EXCEPTO el impostor</li>
                   <li>2. El impostor recibe la categoría como pista</li>
                   <li>3. Discutan y voten quién es el impostor</li>
@@ -585,7 +585,7 @@ export default function Game() {
                 </ul>
                 <button
                   onClick={() => setShowRules(false)}
-                  className="w-full mt-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg"
+                  className="w-full mt-6 py-3 bg-theme-primary hover:opacity-80 rounded-lg"
                 >
                   Entendido
                 </button>
@@ -611,19 +611,19 @@ export default function Game() {
             <span className="font-bold">Pasar dispositivo</span>
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-6 text-center">
+          <div className="bg-theme-bg rounded-lg p-6 text-center">
             <h2 className="text-2xl font-bold mb-4">
               Turno de: {currentPlayer.name}
             </h2>
 
-            <div className="bg-gray-700 rounded-lg p-6 mb-4">
+            <div className="bg-theme-bg rounded-lg p-6 mb-4">
               {showWord ? (
                 <div>
-                  <p className="text-gray-400 mb-2">
+                  <p className="text-theme-accent mb-2">
                     {currentPlayer.isImpostor ? 'Tu pista:' : 'Tu palabra:'}
                   </p>
                   <p className={`text-4xl font-bold ${
-                    currentPlayer.isImpostor ? 'text-yellow-400' : 'text-purple-400'
+                    currentPlayer.isImpostor ? 'text-yellow-400' : 'text-theme-primary'
                   }`}>
                     {currentPlayer.isImpostor 
                       ? '❓ IMPOSTOR'
@@ -631,14 +631,14 @@ export default function Game() {
                   </p>
                 </div>
               ) : (
-                <p className="text-gray-400">Toca el botón para ver tu palabra</p>
+                <p className="text-theme-accent">Toca el botón para ver tu palabra</p>
               )}
             </div>
 
             {!showWord ? (
               <button
                 onClick={() => setShowWord(true)}
-                className="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold flex items-center justify-center gap-2"
+                className="w-full py-4 bg-theme-primary hover:opacity-80 rounded-lg text-xl font-bold flex items-center justify-center gap-2"
               >
                 <Eye size={24} />
                 Ver palabra
@@ -653,7 +653,7 @@ export default function Game() {
             )}
           </div>
 
-          <div className="text-center text-gray-400">
+          <div className="text-center text-theme-accent">
             Jugador {currentViewer + 1} de {players.length}
           </div>
 
@@ -678,10 +678,10 @@ export default function Game() {
         <main className="max-w-2xl mx-auto p-4 pt-20 space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Ronda {round}</h1>
-            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-lg">
-              <span className="text-sm text-gray-400">Código:</span>
+            <div className="flex items-center gap-2 bg-theme-bg px-3 py-1 rounded-lg">
+              <span className="text-sm text-theme-accent">Código:</span>
               <span className="font-mono font-bold">{sessionCode}</span>
-              <button onClick={copyCode} className="text-purple-400">
+              <button onClick={copyCode} className="text-theme-primary">
                 {copied ? <Check size={16} /> : <Copy size={16} />}
               </button>
             </div>
@@ -691,7 +691,7 @@ export default function Game() {
             <span className="font-bold">Turno de votación: {players.filter(p => !p.eliminated)[currentVoterIndex]?.name}</span>
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-theme-bg rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">Jugadores</h2>
             <div className="space-y-2">
               {players.filter(p => !p.eliminated).map((player, index) => {
@@ -704,7 +704,7 @@ export default function Game() {
                   <div
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg ${
-                      isCurrentVoter ? 'bg-yellow-700' : 'bg-gray-700'
+                      isCurrentVoter ? 'bg-yellow-700' : 'bg-theme-bg'
                     }`}
                   >
                     <span className="font-medium">
@@ -715,7 +715,7 @@ export default function Game() {
                     <button
                       onClick={() => handleVote(player.id)}
                       disabled={isSelf}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded text-sm"
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-theme-bg disabled:cursor-not-allowed rounded text-sm"
                     >
                       Votar
                     </button>
@@ -732,14 +732,14 @@ export default function Game() {
             </button>
           </div>
 
-          <div className="bg-gray-800 rounded-lg p-4">
+          <div className="bg-theme-bg rounded-lg p-4">
             <h3 className="font-semibold mb-2">Votos</h3>
             {players.filter(p => !p.eliminated).map((player) => (
               <div key={player.id} className="flex items-center gap-2 mb-1">
                 <span className="w-24 truncate">{player.name}</span>
-                <div className="flex-1 bg-gray-700 h-4 rounded overflow-hidden">
+                <div className="flex-1 bg-theme-bg h-4 rounded overflow-hidden">
                   <div
-                    className="h-full bg-purple-500 transition-all"
+                    className="h-full bg-theme-primary transition-all"
                     style={{ width: `${(player.votes / playerCount) * 100}%` }}
                   />
                 </div>
@@ -765,7 +765,7 @@ export default function Game() {
       <Navbar />
       
       <main className="max-w-2xl mx-auto p-4 pt-20 space-y-6">
-        <div className="bg-gray-800 rounded-lg p-6 text-center">
+        <div className="bg-theme-bg rounded-lg p-6 text-center">
           <h1 className="text-3xl font-bold mb-4">Resultado</h1>
           
           {impostorsWin ? (

@@ -539,30 +539,30 @@ export default function Feed() {
     const isLiked = likedPosts.has(reply.id)
     
     return (
-      <div key={reply.id} className={`${depth > 0 ? 'ml-6 mt-3 pl-4 border-l-2 border-blue-500/30' : ''}`}>
-        <div className="bg-gray-700/30 rounded-lg p-3">
+      <div key={reply.id} className={`${depth > 0 ? 'ml-6 mt-3 pl-4 border-l-2 border-theme-primary/30' : ''}`}>
+        <div className="bg-theme-bg/30 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-theme-primary to-theme-secondary rounded-full flex items-center justify-center">
               <span className="text-xs font-bold">
                 {reply.pubkey?.slice(0, 2).toUpperCase() || '??'}
               </span>
             </div>
-            <span className="text-sm font-medium text-white">{getProfileName(reply.pubkey)}</span>
-            <span className="text-xs text-gray-400">{formatDate(reply.created_at)}</span>
+            <span className="text-sm font-medium text-theme-foreground">{getProfileName(reply.pubkey)}</span>
+            <span className="text-xs text-theme-accent">{formatDate(reply.created_at)}</span>
           </div>
           
-          <p className="text-gray-200 text-sm whitespace-pre-wrap mb-2">{reply.content}</p>
+          <p className="text-theme-foreground text-sm whitespace-pre-wrap mb-2">{reply.content}</p>
           
           <div className="flex gap-4">
             <button 
               onClick={() => handleLike(reply.id, reply.pubkey)}
-              className={`flex items-center gap-1 text-xs ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
+              className={`flex items-center gap-1 text-xs ${isLiked ? 'text-red-500' : 'text-theme-accent hover:text-red-500'}`}
             >
               <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
             </button>
             <button 
               onClick={() => setReplyingTo({ type: 'reply', id: reply.id })}
-              className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500"
+              className="flex items-center gap-1 text-xs text-theme-accent hover:text-theme-primary"
             >
               <MessageCircle size={14} />
               Responder
@@ -570,12 +570,12 @@ export default function Feed() {
           </div>
 
           {replyingTo?.type === 'reply' && replyingTo.id === reply.id && (
-            <div className="mt-3 bg-gray-600 rounded-lg p-3">
+            <div className="mt-3 bg-theme-bg rounded-lg p-3">
               <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Escribe tu respuesta..."
-                className="w-full bg-gray-500 rounded-lg p-2 resize-none focus:outline-none text-white placeholder-gray-500 text-sm"
+                className="w-full bg-theme-bg rounded-lg p-2 resize-none focus:outline-none text-theme-foreground placeholder-theme-accent text-sm"
                 rows={2}
               />
               <div className="flex justify-end gap-2 mt-2">
@@ -584,14 +584,14 @@ export default function Feed() {
                     setReplyingTo(null)
                     setReplyContent('')
                   }}
-                  className="px-2 py-1 text-xs text-gray-400 hover:text-white"
+                  className="px-2 py-1 text-xs text-theme-accent hover:text-theme-foreground"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleReply}
                   disabled={!replyContent.trim() || publishingReply}
-                  className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 text-xs"
+                  className="flex items-center gap-1 px-2 py-1 bg-theme-primary hover:opacity-80 rounded-lg disabled:opacity-50 text-xs"
                 >
                   {publishingReply ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
                   Responder
@@ -612,12 +612,12 @@ export default function Feed() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-theme-bg rounded-lg p-4">
         <textarea
           value={newNote}
           onChange={(e) => setNewNote(e.target.value)}
           placeholder="¿Qué estás pensando?"
-          className="w-full bg-transparent resize-none focus:outline-none text-white placeholder-gray-500"
+          className="w-full bg-transparent resize-none focus:outline-none text-theme-foreground placeholder-theme-accent"
           rows={3}
         />
         {selectedImage && (
@@ -631,7 +631,7 @@ export default function Feed() {
             </button>
           </div>
         )}
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-700">
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-theme-bg">
           <div className="flex gap-2">
             <input
               type="file"
@@ -642,7 +642,7 @@ export default function Feed() {
             />
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 hover:bg-gray-700 rounded-lg text-gray-400"
+              className="p-2 hover:bg-theme-bg rounded-lg text-theme-accent"
               title="Adjuntar imagen"
             >
               <Image size={20} />
@@ -651,7 +651,7 @@ export default function Feed() {
           <button
             onClick={handlePublish}
             disabled={(!newNote.trim() && !selectedImage) || publishing}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-theme-primary hover:opacity-80 rounded-lg disabled:opacity-50"
           >
             {publishing ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
             {publishing ? 'Publicando...' : 'Publicar'}
@@ -661,15 +661,15 @@ export default function Feed() {
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <Loader2 size={40} className="animate-spin text-purple-500" />
-          <p className="text-gray-400 text-sm">Cargando...</p>
+          <Loader2 size={40} className="animate-spin text-theme-primary" />
+          <p className="text-theme-accent text-sm">Cargando...</p>
         </div>
       )}
 
       {!loading && notes.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-gray-400 space-y-3">
-          <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
-            <MessageCircle size={32} className="text-gray-500" />
+        <div className="flex flex-col items-center justify-center py-12 text-theme-accent space-y-3">
+          <div className="w-16 h-16 bg-theme-bg rounded-full flex items-center justify-center">
+            <MessageCircle size={32} className="text-theme-accent" />
           </div>
           <p className="text-lg">No hay posts aún</p>
         </div>
@@ -679,46 +679,46 @@ export default function Feed() {
         const isLiked = likedPosts.has(note.id) || note.likedByCurrentUser
         
         return (
-          <div key={note.id} className="bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-700">
+          <div key={note.id} className="bg-theme-bg rounded-xl p-5 shadow-lg border border-theme-bg">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 bg-gradient-to-br from-theme-primary to-theme-secondary rounded-full flex items-center justify-center shadow-md">
                 <span className="text-base font-bold">
                   {note.pubkey?.slice(0, 2).toUpperCase() || '??'}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-white">{getProfileName(note.pubkey)}</p>
-                <p className="text-xs text-gray-400">{formatDate(note.created_at)}</p>
+                <p className="font-semibold text-theme-foreground">{getProfileName(note.pubkey)}</p>
+                <p className="text-xs text-theme-accent">{formatDate(note.created_at)}</p>
               </div>
             </div>
             
-            <div className="text-gray-100 mb-4 leading-relaxed">
+            <div className="text-theme-foreground mb-4 leading-relaxed">
               {renderContent(note.content)}
             </div>
             
-            <div className="flex gap-6 pt-3 border-t border-gray-700/50">
+            <div className="flex gap-6 pt-3 border-t border-theme-bg/50">
               <button 
                 onClick={() => handleLike(note.id, note.pubkey)}
-                className={`flex items-center gap-2 transition-all duration-200 hover:scale-110 ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
+                className={`flex items-center gap-2 transition-all duration-200 hover:scale-110 ${isLiked ? 'text-red-500' : 'text-theme-accent hover:text-red-500'}`}
               >
                 <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'animate-pulse' : ''} />
                 {note.likeCount > 0 && <span className="text-sm">{note.likeCount}</span>}
               </button>
               <button 
                 onClick={() => setReplyingTo({ type: 'note', id: note.id })}
-                className="flex items-center gap-2 text-gray-400 hover:text-blue-500"
+                className="flex items-center gap-2 text-theme-accent hover:text-theme-primary"
               >
                 <MessageCircle size={18} />
               </button>
             </div>
 
             {replyingTo?.type === 'note' && replyingTo.id === note.id && (
-              <div className="mt-4 bg-gray-700/50 rounded-lg p-4">
+              <div className="mt-4 bg-theme-bg/50 rounded-lg p-4">
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Escribe tu comentario..."
-                  className="w-full bg-gray-600 rounded-lg p-3 resize-none focus:outline-none text-white placeholder-gray-500"
+                  className="w-full bg-theme-bg rounded-lg p-3 resize-none focus:outline-none text-theme-foreground placeholder-theme-accent"
                   rows={2}
                 />
                 <div className="flex justify-end gap-2 mt-2">
@@ -727,14 +727,14 @@ export default function Feed() {
                       setReplyingTo(null)
                       setReplyContent('')
                     }}
-                    className="px-3 py-1.5 text-gray-400 hover:text-white"
+                    className="px-3 py-1.5 text-theme-accent hover:text-theme-foreground"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleReply}
                     disabled={!replyContent.trim() || publishingReply}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 text-sm"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-theme-primary hover:opacity-80 rounded-lg disabled:opacity-50 text-sm"
                   >
                     {publishingReply ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                     Comentar
@@ -744,11 +744,11 @@ export default function Feed() {
             )}
 
             {note.replies.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-700/50">
+              <div className="mt-4 pt-4 border-t border-theme-bg/50">
                 {!note.showReplies ? (
                   <button
                     onClick={() => toggleReplies(note.id)}
-                    className="text-blue-400 hover:text-blue-300 text-sm"
+                    className="text-theme-primary hover:opacity-80 text-sm"
                   >
                     Ver {note.replies.length} {note.replies.length === 1 ? 'comentario' : 'comentarios'}
                   </button>
@@ -756,7 +756,7 @@ export default function Feed() {
                   <div className="space-y-3">
                     <button
                       onClick={() => toggleReplies(note.id)}
-                      className="text-gray-400 hover:text-gray-300 text-sm mb-3"
+                      className="text-theme-accent hover:text-theme-foreground text-sm mb-3"
                     >
                       Ocultar comentarios
                     </button>

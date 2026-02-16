@@ -85,21 +85,21 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
         <div className="max-w-md w-full space-y-8 text-center">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Impostor.Nos</h1>
-            <p className="text-gray-400">Juego social con Nostr</p>
+            <h1 className="text-4xl font-bold mb-2 text-theme-primary">Impostor.Nos</h1>
+            <p className="text-theme-accent">Juego social con Nostr</p>
           </div>
           
           <div className="space-y-4">
             <button
               onClick={() => setMode('create')}
-              className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition"
+              className="w-full py-3 px-4 bg-theme-primary hover:opacity-80 rounded-lg font-semibold transition"
             >
               Crear nuevas claves
             </button>
             
             <button
               onClick={() => setMode('login')}
-              className="w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition"
+              className="w-full py-3 px-4 bg-theme-bg hover:opacity-80 rounded-lg font-semibold transition"
             >
               Usar claves existentes
             </button>
@@ -114,7 +114,7 @@ export default function Auth() {
       <div className="max-w-md w-full space-y-6">
         <button
           onClick={() => setMode('select')}
-          className="text-gray-400 hover:text-white"
+          className="text-theme-accent hover:text-theme-foreground"
         >
           ← Volver
         </button>
@@ -123,7 +123,7 @@ export default function Auth() {
           <h2 className="text-2xl font-bold">
             {mode === 'create' ? 'Crear cuenta' : 'Iniciar sesión'}
           </h2>
-          <p className="text-gray-400 mt-2">
+          <p className="text-theme-accent mt-2">
             {mode === 'create' 
               ? 'Genera un nuevo par de claves Nostr'
               : 'Ingresa tu clave privada'
@@ -142,14 +142,14 @@ export default function Auth() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Tu nombre"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-theme-bg border border-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
               />
             </div>
             
             <button
               onClick={handleCreate}
               disabled={loading}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition disabled:opacity-50"
+              className="w-full py-3 bg-theme-primary hover:opacity-80 rounded-lg font-semibold transition disabled:opacity-50"
             >
               {loading ? 'Creando...' : 'Crear cuenta'}
             </button>
@@ -165,14 +165,14 @@ export default function Auth() {
                 value={privateKeyInput}
                 onChange={(e) => setPrivateKeyInput(e.target.value)}
                 placeholder="nsec1..."
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-3 bg-theme-bg border border-theme-bg rounded-lg focus:outline-none focus:border-theme-primary"
               />
             </div>
             
             <button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition disabled:opacity-50"
+              className="w-full py-3 bg-theme-primary hover:opacity-80 rounded-lg font-semibold transition disabled:opacity-50"
             >
               {loading ? 'Iniciando...' : 'Iniciar sesión'}
             </button>

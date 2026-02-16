@@ -138,14 +138,14 @@ export default function Profile() {
       <Navbar />
       
       <main className="max-w-2xl mx-auto p-4 pt-20 space-y-6">
-        <div className="bg-gray-800 rounded-lg p-6">
+        <div className="bg-theme-bg rounded-lg p-6">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center text-2xl font-bold">
+            <div className="w-16 h-16 bg-theme-primary rounded-full flex items-center justify-center text-2xl font-bold">
               {(isMyProfile ? currentUser?.username || 'U' : npub.slice(0, 2)).toUpperCase()}
             </div>
             <div>
               <h1 className="text-2xl font-bold">{username}</h1>
-              <p className="text-gray-400 text-sm font-mono">{encodePubkey(npub).slice(0, 20)}...</p>
+              <p className="text-theme-accent text-sm font-mono">{encodePubkey(npub).slice(0, 20)}...</p>
             </div>
           </div>
 
@@ -153,7 +153,7 @@ export default function Profile() {
             <button
               onClick={() => setActiveTab('stats')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                activeTab === 'stats' ? 'bg-purple-600' : 'bg-gray-700'
+                activeTab === 'stats' ? 'bg-theme-primary' : 'bg-theme-bg'
               }`}
             >
               <Trophy size={18} />
@@ -162,7 +162,7 @@ export default function Profile() {
             <button
               onClick={() => setActiveTab('global')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                activeTab === 'global' ? 'bg-purple-600' : 'bg-gray-700'
+                activeTab === 'global' ? 'bg-theme-primary' : 'bg-theme-bg'
               }`}
             >
               <Users size={18} />
@@ -172,38 +172,38 @@ export default function Profile() {
         </div>
 
         {activeTab === 'stats' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-theme-bg rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">Mis Estadísticas</h2>
             
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold text-purple-400">{stats.partidasJugadas}</p>
-                <p className="text-sm text-gray-400">Partidas jugadas</p>
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-theme-primary">{stats.partidasJugadas}</p>
+                <p className="text-sm text-theme-accent">Partidas jugadas</p>
               </div>
               
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-green-400">{winRate}%</p>
-                <p className="text-sm text-gray-400">Win rate</p>
+                <p className="text-sm text-theme-accent">Win rate</p>
               </div>
               
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold text-green-500">{stats.partidasGanadas}</p>
-                <p className="text-sm text-gray-400">Ganadas</p>
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-green-400">{stats.partidasGanadas}</p>
+                <p className="text-sm text-theme-accent">Ganadas</p>
               </div>
               
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-red-500">{stats.partidasPerdidas}</p>
-                <p className="text-sm text-gray-400">Perdidas</p>
+                <p className="text-sm text-theme-accent">Perdidas</p>
               </div>
               
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-red-400">{stats.vecesImpostor}</p>
-                <p className="text-sm text-gray-400">Veces impostor</p>
+                <p className="text-sm text-theme-accent">Veces impostor</p>
               </div>
               
-              <div className="bg-gray-700 rounded-lg p-4 text-center">
+              <div className="bg-theme-bg rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-blue-400">{stats.vecesCiudadano}</p>
-                <p className="text-sm text-gray-400">Veces ciudadano</p>
+                <p className="text-sm text-theme-accent">Veces ciudadano</p>
               </div>
             </div>
           </div>

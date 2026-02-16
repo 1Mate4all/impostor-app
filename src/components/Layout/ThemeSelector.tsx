@@ -23,13 +23,7 @@ export default function ThemeSelector() {
   }, [])
 
   const applyTheme = (newTheme: ThemeName) => {
-    const colors = THEMES[newTheme]
-    
     document.documentElement.setAttribute('data-theme', newTheme)
-    document.documentElement.style.setProperty('--primary', colors.primary)
-    document.documentElement.style.setProperty('--secondary', colors.secondary)
-    document.documentElement.style.setProperty('--accent', colors.text)
-    document.documentElement.style.setProperty('--bg-theme', colors.background)
     
     setTheme(newTheme)
     setPendingTheme(null)

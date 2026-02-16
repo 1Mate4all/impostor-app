@@ -37,12 +37,12 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 text-gray-400 hover:text-white"
+              className="p-2 text-theme-accent hover:text-theme-foreground"
             >
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             
-            <Link href="/" className="text-xl font-bold text-purple-500">
+            <Link href="/" className="text-xl font-bold text-theme-primary">
               Impostor.Nos
             </Link>
           </div>
@@ -60,7 +60,7 @@ export default function Navbar() {
 
             <button
               onClick={handleLogout}
-              className="p-1.5 sm:p-2 text-gray-400 hover:text-red-400"
+              className="p-1.5 sm:p-2 text-theme-accent hover:text-red-400"
               title="Cerrar sesión"
             >
               <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -76,7 +76,7 @@ export default function Navbar() {
               href="/"
               onClick={() => setMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                pathname === '/' ? 'bg-purple-600' : 'hover:bg-gray-700'
+                pathname === '/' ? 'bg-theme-primary' : 'hover:bg-gray-700'
               }`}
             >
               <Home size={20} />
@@ -87,7 +87,7 @@ export default function Navbar() {
               href="/game"
               onClick={() => setMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                pathname === '/game' ? 'bg-purple-600' : 'hover:bg-gray-700'
+                pathname === '/game' ? 'bg-theme-primary' : 'hover:bg-gray-700'
               }`}
             >
               <Gamepad2 size={20} />
@@ -107,7 +107,7 @@ export default function Navbar() {
               href="/settings"
               onClick={() => setMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                pathname === '/settings' ? 'bg-purple-600' : 'hover:bg-gray-700'
+                pathname === '/settings' ? 'bg-theme-primary' : 'hover:bg-gray-700'
               }`}
             >
               <Settings size={20} />

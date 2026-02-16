@@ -22,6 +22,7 @@
   --secondary: #00ffff;
   --accent: #00ff00;
   --bg-theme: #0d0d0d;
+  --foreground: #00ff00;
 }
 
 [data-theme="amber"] {
@@ -29,6 +30,7 @@
   --secondary: #ffd700;
   --accent: #ffb000;
   --bg-theme: #0d0d0d;
+  --foreground: #ffb000;
 }
 
 [data-theme="cyberpunk"] {
@@ -36,6 +38,7 @@
   --secondary: #00ffff;
   --accent: #ff00ff;
   --bg-theme: #0d0d0d;
+  --foreground: #ff00ff;
 }
 
 [data-theme="hacker"] {
@@ -43,6 +46,7 @@
   --secondary: #00ff00;
   --accent: #00ffff;
   --bg-theme: #0d0d0d;
+  --foreground: #00ffff;
 }
 
 [data-theme="ghost"] {
@@ -50,6 +54,7 @@
   --secondary: #cccccc;
   --accent: #ffffff;
   --bg-theme: #0d0d0d;
+  --foreground: #ffffff;
 }
 
 body {
