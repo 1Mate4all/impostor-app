@@ -181,15 +181,17 @@ export default function Feed() {
       }
 
       const reactionsByEventId: Record<string, string[]> = {}
-      reactions.forEach(r => {
-        const eventIdTag = r.tags.find(t => t[0] === 'e')
-        if (eventIdTag && eventIdTag[1]) {
-          if (!reactionsByEventId[eventIdTag[1]]) {
-            reactionsByEventId[eventIdTag[1]] = []
+      reactions
+        .filter(r => r.content === '+')
+        .forEach(r => {
+          const eventIdTag = r.tags.find(t => t[0] === 'e')
+          if (eventIdTag && eventIdTag[1]) {
+            if (!reactionsByEventId[eventIdTag[1]]) {
+              reactionsByEventId[eventIdTag[1]] = []
+            }
+            reactionsByEventId[eventIdTag[1]].push(r.pubkey)
           }
-          reactionsByEventId[eventIdTag[1]].push(r.pubkey)
-        }
-      })
+        })
 
       const repostsFilter = { kinds: [6], '#e': rootIds, limit: 1000 }
       let reposts: NostrEvent[] = []
@@ -535,16 +537,32 @@ export default function Feed() {
       const signed = finalizeEvent(event, Buffer.from(privateKey, 'hex'))
       const activeRelays = relays.filter(r => r.active).map(r => r.url)
       
+      if (activeRelays.length === 0) {
+        console.error('No active relays')
+        throw new Error('No active relays')
+      }
+      
       const workingRelays: string[] = []
       for (const url of activeRelays) {
         try {
           await pool.ensureRelay(url)
           workingRelays.push(url)
-        } catch (e) {}
+        } catch (e) {
+          console.log('Failed to connect to relay:', url, e)
+        }
       }
       
       if (workingRelays.length > 0) {
-        await pool.publish(workingRelays, signed)
+        try {
+          await Promise.any(pool.publish(workingRelays, signed))
+          console.log('Like published successfully')
+        } catch (e) {
+          console.error('Failed to publish like:', e)
+          throw e
+        }
+      } else {
+        console.error('No working relays')
+        throw new Error('No working relays')
       }
     } catch (error) {
       console.error('Error liking:', error)
@@ -584,7 +602,12 @@ export default function Feed() {
       const pool = new SimplePool()
       
       const activeRelays = relays.filter(r => r.active).map(r => r.url)
-      const relayUrl = activeRelays[0] || 'wss://impostor-relay-production.up.railway.app'
+      if (activeRelays.length === 0) {
+        console.error('No active relays')
+        throw new Error('No active relays')
+      }
+      
+      const relayUrl = activeRelays[0]
       
       const repostContent = JSON.stringify({
         id: note.id,
@@ -610,11 +633,22 @@ export default function Feed() {
         try {
           await pool.ensureRelay(url)
           workingRelays.push(url)
-        } catch (e) {}
+        } catch (e) {
+          console.log('Failed to connect to relay:', url, e)
+        }
       }
       
       if (workingRelays.length > 0) {
-        await pool.publish(workingRelays, signed)
+        try {
+          await Promise.any(pool.publish(workingRelays, signed))
+          console.log('Repost published successfully')
+        } catch (e) {
+          console.error('Failed to publish repost:', e)
+          throw e
+        }
+      } else {
+        console.error('No working relays')
+        throw new Error('No working relays')
       }
     } catch (error) {
       console.error('Error reposting:', error)
