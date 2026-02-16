@@ -31,6 +31,8 @@ interface Reply {
 interface Note extends NostrEvent {
   replies: Reply[]
   showReplies: boolean
+  likeCount: number
+  likedByCurrentUser: boolean
 }
 
 const NOTES_PER_PAGE = 10
@@ -167,12 +169,36 @@ export default function Feed() {
         console.log('Error fetching comments:', e)
       }
 
+      const reactionsFilter = { kinds: [7], '#e': rootIds, limit: 1000 }
+      let reactions: NostrEvent[] = []
+      
+      try {
+        reactions = await pool.querySync(workingRelays, reactionsFilter) || []
+      } catch (e) {
+        console.log('Error fetching reactions:', e)
+      }
+
+      const reactionsByEventId: Record<string, string[]> = {}
+      reactions.forEach(r => {
+        const eventIdTag = r.tags.find(t => t[0] === 'e')
+        if (eventIdTag && eventIdTag[1]) {
+          if (!reactionsByEventId[eventIdTag[1]]) {
+            reactionsByEventId[eventIdTag[1]] = []
+          }
+          reactionsByEventId[eventIdTag[1]].push(r.pubkey)
+        }
+      })
+
+      const userPubkey = user?.publicKey
+
       const allNotesForTree = [...allEvents, ...comments.filter(c => !allEvents.some(a => a.id === c.id))]
       
       const notesWithReplies: Note[] = rootNotes.map(note => ({
         ...note,
         replies: buildReplyTree(allNotesForTree, note.id),
-        showReplies: false
+        showReplies: false,
+        likeCount: reactionsByEventId[note.id]?.length || 0,
+        likedByCurrentUser: userPubkey ? reactionsByEventId[note.id]?.includes(userPubkey) || false : false
       })).sort((a, b) => b.created_at - a.created_at)
 
       notesWithReplies.forEach(n => loadedIds.current.add(n.id))
@@ -275,7 +301,9 @@ export default function Feed() {
         const newNoteObj: Note = {
           ...signed,
           replies: [],
-          showReplies: false
+          showReplies: false,
+          likeCount: 0,
+          likedByCurrentUser: false
         }
         
         setNotes(prev => [newNoteObj, ...prev])
@@ -413,6 +441,25 @@ export default function Feed() {
     } catch {
       return pk?.slice(0, 16) + '...' || 'Unknown'
     }
+  }
+
+  const renderContent = (content: string) => {
+    const imageRegex = /(data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)/g
+    const parts = content.split(imageRegex)
+    
+    return parts.map((part, index) => {
+      if (part && part.startsWith('data:image/')) {
+        return (
+          <img 
+            key={index} 
+            src={part} 
+            alt="Imagen adjunta" 
+            className="max-w-full h-auto rounded-lg mt-3 mb-2 max-h-80 object-contain"
+          />
+        )
+      }
+      return part ? <span key={index} className="whitespace-pre-wrap">{part}</span> : null
+    })
   }
 
   const formatDate = (timestamp: number) => {
@@ -609,7 +656,7 @@ export default function Feed() {
       )}
 
       {notes.map((note) => {
-        const isLiked = likedPosts.has(note.id)
+        const isLiked = likedPosts.has(note.id) || note.likedByCurrentUser
         
         return (
           <div key={note.id} className="bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-700">
@@ -625,7 +672,9 @@ export default function Feed() {
               </div>
             </div>
             
-            <p className="text-gray-100 whitespace-pre-wrap mb-4 leading-relaxed">{note.content}</p>
+            <div className="text-gray-100 mb-4 leading-relaxed">
+              {renderContent(note.content)}
+            </div>
             
             <div className="flex gap-6 pt-3 border-t border-gray-700/50">
               <button 
@@ -633,6 +682,7 @@ export default function Feed() {
                 className={`flex items-center gap-2 ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
               >
                 <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                {note.likeCount > 0 && <span className="text-sm">{note.likeCount}</span>}
               </button>
               <button 
                 onClick={() => setReplyingTo({ type: 'note', id: note.id })}
