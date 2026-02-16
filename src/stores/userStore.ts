@@ -70,13 +70,17 @@ export const useUserStore = create<UserStore>()(
       setUser: (user, privateKey) => set({ 
         user, 
         privateKey, 
-        isAuthenticated: true 
+        isAuthenticated: true,
+        likedPosts: new Set(),
+        repostedPosts: new Set()
       }),
 
       logout: () => set({ 
         user: null, 
         privateKey: null, 
-        isAuthenticated: false 
+        isAuthenticated: false,
+        likedPosts: new Set(),
+        repostedPosts: new Set()
       }),
 
       updateUsername: (username) => set((state) => ({

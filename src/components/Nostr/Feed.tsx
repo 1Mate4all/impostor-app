@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useUserStore } from '@/stores/userStore'
 import { encodePubkey } from '@/lib/nostr'
-import { Heart, MessageCircle, Image, Send, Loader2 } from 'lucide-react'
+import { Heart, MessageCircle, Image, Send, Loader2, Repeat } from 'lucide-react'
 
 interface NostrEvent {
   id: string
@@ -33,6 +33,8 @@ interface Note extends NostrEvent {
   showReplies: boolean
   likeCount: number
   likedByCurrentUser: boolean
+  repostCount: number
+  repostedByCurrentUser: boolean
 }
 
 const NOTES_PER_PAGE = 10
@@ -45,7 +47,7 @@ export default function Feed() {
   const [publishing, setPublishing] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { relays, privateKey, likedPosts, toggleLike, user } = useUserStore()
+  const { relays, privateKey, likedPosts, repostedPosts, toggleLike, toggleRepost, user } = useUserStore()
   const loadedIds = useRef<Set<string>>(new Set())
   const [profiles, setProfiles] = useState<Record<string, NostrProfile>>({})
   const [replyingTo, setReplyingTo] = useState<{ type: 'note' | 'reply', id: string } | null>(null)
@@ -189,6 +191,26 @@ export default function Feed() {
         }
       })
 
+      const repostsFilter = { kinds: [6], '#e': rootIds, limit: 1000 }
+      let reposts: NostrEvent[] = []
+      
+      try {
+        reposts = await pool.querySync(workingRelays, repostsFilter) || []
+      } catch (e) {
+        console.log('Error fetching reposts:', e)
+      }
+
+      const repostsByEventId: Record<string, string[]> = {}
+      reposts.forEach(r => {
+        const eventIdTag = r.tags.find(t => t[0] === 'e')
+        if (eventIdTag && eventIdTag[1]) {
+          if (!repostsByEventId[eventIdTag[1]]) {
+            repostsByEventId[eventIdTag[1]] = []
+          }
+          repostsByEventId[eventIdTag[1]].push(r.pubkey)
+        }
+      })
+
       const userPubkey = user?.publicKey
 
       const allNotesForTree = [...allEvents, ...comments.filter(c => !allEvents.some(a => a.id === c.id))]
@@ -198,7 +220,9 @@ export default function Feed() {
         replies: buildReplyTree(allNotesForTree, note.id),
         showReplies: false,
         likeCount: reactionsByEventId[note.id]?.length || 0,
-        likedByCurrentUser: userPubkey ? reactionsByEventId[note.id]?.includes(userPubkey) || false : false
+        likedByCurrentUser: userPubkey ? reactionsByEventId[note.id]?.includes(userPubkey) || false : false,
+        repostCount: repostsByEventId[note.id]?.length || 0,
+        repostedByCurrentUser: userPubkey ? repostsByEventId[note.id]?.includes(userPubkey) || false : false
       })).sort((a, b) => b.created_at - a.created_at)
 
       notesWithReplies.forEach(n => loadedIds.current.add(n.id))
@@ -303,7 +327,9 @@ export default function Feed() {
           replies: [],
           showReplies: false,
           likeCount: 0,
-          likedByCurrentUser: false
+          likedByCurrentUser: false,
+          repostCount: 0,
+          repostedByCurrentUser: false
         }
         
         setNotes(prev => [newNoteObj, ...prev])
@@ -535,6 +561,76 @@ export default function Feed() {
     }
   }
 
+  const handleRepost = async (eventId: string, note: Note) => {
+    if (!privateKey || !user) return
+    
+    const isCurrentlyReposted = repostedPosts.has(eventId) || note.repostedByCurrentUser || false
+    
+    toggleRepost(eventId)
+    
+    setNotes(prev => prev.map(n => {
+      if (n.id === eventId) {
+        return {
+          ...n,
+          repostedByCurrentUser: !isCurrentlyReposted,
+          repostCount: isCurrentlyReposted ? n.repostCount - 1 : n.repostCount + 1
+        }
+      }
+      return n
+    }))
+    
+    try {
+      const { SimplePool, finalizeEvent } = await import('nostr-tools')
+      const pool = new SimplePool()
+      
+      const activeRelays = relays.filter(r => r.active).map(r => r.url)
+      const relayUrl = activeRelays[0] || 'wss://impostor-relay-production.up.railway.app'
+      
+      const repostContent = JSON.stringify({
+        id: note.id,
+        pubkey: note.pubkey,
+        created_at: note.created_at,
+        kind: note.kind,
+        tags: note.tags,
+        content: note.content,
+        sig: (note as any).sig
+      })
+      
+      const event = {
+        kind: 6,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [['e', eventId, relayUrl], ['p', note.pubkey]],
+        content: repostContent
+      }
+
+      const signed = finalizeEvent(event, Buffer.from(privateKey, 'hex'))
+      
+      const workingRelays: string[] = []
+      for (const url of activeRelays) {
+        try {
+          await pool.ensureRelay(url)
+          workingRelays.push(url)
+        } catch (e) {}
+      }
+      
+      if (workingRelays.length > 0) {
+        await pool.publish(workingRelays, signed)
+      }
+    } catch (error) {
+      console.error('Error reposting:', error)
+      setNotes(prev => prev.map(n => {
+        if (n.id === eventId) {
+          return {
+            ...n,
+            repostedByCurrentUser: isCurrentlyReposted,
+            repostCount: isCurrentlyReposted ? n.repostCount + 1 : n.repostCount - 1
+          }
+        }
+        return n
+      }))
+    }
+  }
+
   const renderReply = (reply: Reply, noteId: string, depth: number = 0) => {
     const isLiked = likedPosts.has(reply.id)
     
@@ -677,6 +773,7 @@ export default function Feed() {
 
       {notes.map((note) => {
         const isLiked = likedPosts.has(note.id) || note.likedByCurrentUser
+        const isReposted = repostedPosts.has(note.id) || note.repostedByCurrentUser
         
         return (
           <div key={note.id} className="bg-theme-bg rounded-xl p-5 shadow-lg border border-theme-bg">
@@ -703,6 +800,13 @@ export default function Feed() {
               >
                 <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'animate-pulse' : ''} />
                 {note.likeCount > 0 && <span className="text-sm">{note.likeCount}</span>}
+              </button>
+              <button 
+                onClick={() => handleRepost(note.id, note)}
+                className={`flex items-center gap-2 transition-all duration-200 hover:scale-110 ${isReposted ? 'text-green-500' : 'text-theme-accent hover:text-green-500'}`}
+              >
+                <Repeat size={18} className={isReposted ? 'animate-pulse' : ''} />
+                {note.repostCount > 0 && <span className="text-sm">{note.repostCount}</span>}
               </button>
               <button 
                 onClick={() => setReplyingTo({ type: 'note', id: note.id })}
