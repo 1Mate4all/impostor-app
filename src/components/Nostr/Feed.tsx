@@ -47,7 +47,7 @@ export default function Feed() {
   const [publishing, setPublishing] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { relays, privateKey, likedPosts, repostedPosts, toggleLike, toggleRepost, user } = useUserStore()
+  const { relays, privateKey, user } = useUserStore()
   const loadedIds = useRef<Set<string>>(new Set())
   const [profiles, setProfiles] = useState<Record<string, NostrProfile>>({})
   const [replyingTo, setReplyingTo] = useState<{ type: 'note' | 'reply', id: string } | null>(null)
@@ -509,15 +509,16 @@ export default function Feed() {
     if (!privateKey || !user) return
     
     const note = notes.find(n => n.id === eventId)
-    const isCurrentlyLiked = likedPosts.has(eventId) || note?.likedByCurrentUser || false
+    if (!note) return
     
-    toggleLike(eventId)
+    const isCurrentlyLiked = note.likedByCurrentUser
+    const newLikedState = !isCurrentlyLiked
     
     setNotes(prev => prev.map(n => {
       if (n.id === eventId) {
         return {
           ...n,
-          likedByCurrentUser: !isCurrentlyLiked,
+          likedByCurrentUser: newLikedState,
           likeCount: isCurrentlyLiked ? n.likeCount - 1 : n.likeCount + 1
         }
       }
@@ -538,7 +539,6 @@ export default function Feed() {
       const activeRelays = relays.filter(r => r.active).map(r => r.url)
       
       if (activeRelays.length === 0) {
-        console.error('No active relays')
         throw new Error('No active relays')
       }
       
@@ -553,15 +553,8 @@ export default function Feed() {
       }
       
       if (workingRelays.length > 0) {
-        try {
-          await Promise.any(pool.publish(workingRelays, signed))
-          console.log('Like published successfully')
-        } catch (e) {
-          console.error('Failed to publish like:', e)
-          throw e
-        }
+        await Promise.any(pool.publish(workingRelays, signed))
       } else {
-        console.error('No working relays')
         throw new Error('No working relays')
       }
     } catch (error) {
@@ -582,15 +575,14 @@ export default function Feed() {
   const handleRepost = async (eventId: string, note: Note) => {
     if (!privateKey || !user) return
     
-    const isCurrentlyReposted = repostedPosts.has(eventId) || note.repostedByCurrentUser || false
-    
-    toggleRepost(eventId)
+    const isCurrentlyReposted = note.repostedByCurrentUser
+    const newRepostState = !isCurrentlyReposted
     
     setNotes(prev => prev.map(n => {
       if (n.id === eventId) {
         return {
           ...n,
-          repostedByCurrentUser: !isCurrentlyReposted,
+          repostedByCurrentUser: newRepostState,
           repostCount: isCurrentlyReposted ? n.repostCount - 1 : n.repostCount + 1
         }
       }
@@ -603,7 +595,6 @@ export default function Feed() {
       
       const activeRelays = relays.filter(r => r.active).map(r => r.url)
       if (activeRelays.length === 0) {
-        console.error('No active relays')
         throw new Error('No active relays')
       }
       
@@ -639,15 +630,8 @@ export default function Feed() {
       }
       
       if (workingRelays.length > 0) {
-        try {
-          await Promise.any(pool.publish(workingRelays, signed))
-          console.log('Repost published successfully')
-        } catch (e) {
-          console.error('Failed to publish repost:', e)
-          throw e
-        }
+        await Promise.any(pool.publish(workingRelays, signed))
       } else {
-        console.error('No working relays')
         throw new Error('No working relays')
       }
     } catch (error) {
@@ -666,8 +650,6 @@ export default function Feed() {
   }
 
   const renderReply = (reply: Reply, noteId: string, depth: number = 0) => {
-    const isLiked = likedPosts.has(reply.id)
-    
     return (
       <div key={reply.id} className={`${depth > 0 ? 'ml-6 mt-3 pl-4 border-l-2 border-theme-primary/30' : ''}`}>
         <div className="bg-theme-bg/30 rounded-lg p-3">
@@ -686,9 +668,9 @@ export default function Feed() {
           <div className="flex gap-4">
             <button 
               onClick={() => handleLike(reply.id, reply.pubkey)}
-              className={`flex items-center gap-1 text-xs ${isLiked ? 'text-red-500' : 'text-theme-accent hover:text-red-500'}`}
+              className="flex items-center gap-1 text-xs text-theme-accent hover:text-red-500"
             >
-              <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
+              <Heart size={14} />
             </button>
             <button 
               onClick={() => setReplyingTo({ type: 'reply', id: reply.id })}
@@ -806,8 +788,8 @@ export default function Feed() {
       )}
 
       {notes.map((note) => {
-        const isLiked = likedPosts.has(note.id) || note.likedByCurrentUser
-        const isReposted = repostedPosts.has(note.id) || note.repostedByCurrentUser
+        const isLiked = note.likedByCurrentUser
+        const isReposted = note.repostedByCurrentUser
         
         return (
           <div key={note.id} className="bg-theme-bg rounded-xl p-5 shadow-lg border border-theme-bg">
