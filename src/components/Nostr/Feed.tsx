@@ -33,7 +33,7 @@ interface Note extends NostrEvent {
   showReplies: boolean
 }
 
-const NOTES_PER_PAGE = 50
+const NOTES_PER_PAGE = 10
 
 export default function Feed() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -230,12 +230,6 @@ export default function Feed() {
 
   useEffect(() => {
     fetchNotes()
-
-    const interval = setInterval(() => {
-      fetchNotes()
-    }, 15000)
-
-    return () => clearInterval(interval)
   }, [])
 
   const handlePublish = async () => {
